@@ -56,8 +56,4 @@ O sistema não processa pagamentos internamente. Ao clicar em finalizar pedido, 
 
 ## 🚀 Como Visualizar e Testar o Protótipo
 
-Como o projeto é construído em **HTML, CSS e JavaScript puros**, você não precisa instalar nenhuma dependência ou iniciar servidores complexos!
-
-1. Abra a pasta do projeto `raizes-do-nordeste-ds`.
-2. Dê um clique duplo ou abra o arquivo `index.html` em qualquer navegador moderno (Chrome, Firefox, Safari ou Edge).
-3. Utilize o botão "Entrar / Cadastrar" no cabeçalho ou o botão no carrinho para simular a criação de uma conta com consentimento da LGPD e ativar o desconto de fidelidade.
+O site está publicado em: https://derickcalado.github.io/projetoRaizesDoNordeste/
