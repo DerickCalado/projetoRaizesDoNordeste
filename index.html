@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raízes do Nordeste — Design System & Fluxo de Pedidos</title>
+  <link rel="stylesheet" href="index.css">
+  <style>
+    /* Styling extension specifically for the layout showcase page */
+    .tab-header {
+      background-color: var(--color-text-main);
+      padding: var(--space-md) 0;
+      color: var(--color-bg-light);
+    }
+    
+    .nav-tab {
+      color: var(--color-text-light);
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-pill);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    
+    .nav-tab.active {
+      color: var(--color-bg-white);
+      background-color: var(--color-primary);
+    }
+    
+    .nav-tab:hover:not(.active) {
+      color: var(--color-bg-light);
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Design System Playground styling */
+    .ds-section-title {
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: var(--space-xs);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-md);
+      font-family: var(--font-display);
+      color: var(--color-primary);
+    }
+    
+    .color-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .color-swatch {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .color-preview {
+      height: 90px;
+    }
+    
+    .color-details {
+      padding: var(--space-sm);
+      background: var(--color-bg-white);
+    }
+    
+    .color-name {
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+    }
+    
+    .color-hex {
+      font-family: monospace;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+    }
+    
+    .component-box {
+      border: 1.5px dashed var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      background: var(--color-bg-white);
+      margin-bottom: var(--space-md);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: center;
+    }
+
+
+    
+    .store-card.selected {
+      border-color: var(--color-primary) !important;
+      background-color: var(--color-primary-light) !important;
+      box-shadow: var(--shadow-md) !important;
+    }
+    
+    /* Code view toggle styling */
+    .code-inspect {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      background-color: var(--color-bg-grey);
+      padding: var(--space-xs);
+      border-radius: var(--radius-sm);
+      width: 100%;
+      overflow-x: auto;
+      margin-top: var(--space-sm);
+      display: none;
+    }
+    
+    /* Toast container placement */
+    #toast-container {
+      position: fixed;
+      top: var(--space-md);
+      right: var(--space-md);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+    }
+    
+
+  </style>
+</head>
+<body>
+
+
+
+  <!-- Main Notification Center -->
+  <div id="toast-container"></div>
+
+  <!-- Unified Navigation Header -->
+  <header class="tab-header">
+    <div class="container flex justify-between items-center">
+      <div class="logo" style="color: var(--color-bg-white);">
+        <div class="logo-icon">🌵</div>
+        <span>Raízes do Nordeste</span>
+      </div>
+      <nav class="flex gap-sm">
+        <button id="auth-header-btn" class="btn btn-outline btn-sm" style="color: var(--color-bg-light); border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); font-weight: 500;" onclick="openAuthModal()">Entrar / Cadastrar</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       SECTION 1: SIMULATOR (APP FLOW DEMO)
+       ======================================================== -->
+  <main id="demo-section" style="display: block;">
+    
+    <!-- Hero / Service Mode Picker (Pizza Hut Style) -->
+    <section style="background-color: var(--color-bg-white); border-bottom: 1px solid var(--color-border); padding: var(--space-xl) 0;">
+      <div class="container flex flex-col items-center text-center">
+        <span class="badge badge-secondary mb-sm">Tradição & Tecnologia</span>
+        <h1 style="font-size: var(--font-size-3xl); margin-bottom: var(--space-sm); font-family: var(--font-display);">
+          Cuscuz quente e Tapioca rendada no seu tempo
+        </h1>
+        <p style="color: var(--color-text-muted); max-width: 600px; margin-bottom: var(--space-lg); font-size: var(--font-size-md);">
+          Faça seu pedido online para entrega rápida ou retire sem filas na unidade mais próxima.
+        </p>
+        
+        <!-- Toggle (Delivery vs. Pick-up) -->
+        <div class="service-toggle mb-lg">
+          <button id="btn-mode-delivery" class="service-toggle-btn active">Receber em Casa (Delivery)</button>
+          <button id="btn-mode-pickup" class="service-toggle-btn">Retirar na Loja (Pick-up)</button>
+        </div>
+
+        <!-- Mode Content: Delivery -->
+        <div id="mode-content-delivery" style="display: block; width: 100%; max-width: 500px;">
+          <div class="flex gap-xs">
+            <input type="text" id="cep-input" class="input-field" placeholder="Insira seu CEP para verificar entrega (ex: 50010000)">
+            <button id="cep-search-btn" class="btn btn-primary">Verificar</button>
+          </div>
+          <div id="address-display-info"></div>
+        </div>
+
+        <!-- Mode Content: Pick-up (Store Selector) -->
+        <div id="mode-content-pickup" style="display: none; width: 100%; max-width: 600px;">
+          <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-sm);">
+            Escolha uma unidade para ver o cardápio disponível naquele local:
+          </p>
+          <div id="store-list-container" class="grid grid-cols-2 gap-sm text-left">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Bar (Sticky Menu Nav) -->
+    <div class="category-nav-wrapper">
+      <div class="container">
+        <div class="category-nav">
+          <a href="#sec-cuscuz" class="category-link active">Cuscuz Fofinho</a>
+          <a href="#sec-tapiocas" class="category-link">Tapiocas Recheadas</a>
+          <a href="#sec-bolos" class="category-link">Bolos Caseiros</a>
+          <a href="#sec-bebidas" class="category-link">Bebidas Regionais</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Menu Grid -->
+    <section class="container mt-xl mb-2xl">
+      <div class="flex justify-between items-center mb-md">
+        <h2 style="font-family: var(--font-display); font-size: var(--font-size-xl);">Cardápio de hoje</h2>
+        <div class="flex gap-xs items-center" style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+          <span>Loja Ativa:</span>
+          <strong id="active-store-display" style="color: var(--color-primary);">Recife Centro</strong>
+        </div>
+      </div>
+      
+      <div id="menu-grid" class="grid grid-cols-3 gap-lg">
+        <!-- Products will be generated dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Sticky Floating Cart Button (Mobile view trigger) -->
+    <button class="btn btn-primary" id="floating-cart-trigger" onclick="openCartDrawer()" style="position: fixed; bottom: 20px; right: 20px; z-index: 900; box-shadow: var(--shadow-lg);">
+      🛒 Carrinho (<span id="cart-count">0</span>)
+    </button>
+  </main>
+
+
+
+  <!-- ========================================================
+       MODALS & DRAWER DRAWINGS (Pizza Hut Style Layout)
+       ======================================================== -->
+
+  <!-- Backdrop for Cart Drawer -->
+  <div id="cart-drawer-backdrop" class="drawer-backdrop" onclick="closeCartDrawer()"></div>
+
+  <!-- Cart Drawer (Pizza Hut Sidebar Cart) -->
+  <div id="cart-drawer" class="drawer">
+    <div class="drawer-header">
+      <h3 class="modal-title">Seu Pedido</h3>
+      <button class="modal-close" onclick="closeCartDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <!-- Selected Unit Indicator -->
+      <div style="background-color: var(--color-bg-grey); padding: var(--space-sm); border-radius: var(--radius-md); margin-bottom: var(--space-md); font-size: var(--font-size-xs);">
+        📍 Retirada ou Entrega por: <strong id="cart-store-name-indicator">Recife Centro</strong>
+      </div>
+      
+      <!-- Cart items container -->
+      <div id="cart-items-list">
+        <!-- Rendered by JS -->
+      </div>
+      
+      <!-- Loyalty signup in Cart drawer -->
+      <div id="fidelity-status-banner">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+    
+    <!-- Cart Summary & Final CTA -->
+    <div class="drawer-footer">
+      <div class="flex justify-between mb-sm" style="font-size: var(--font-size-sm);">
+        <span style="color: var(--color-text-muted);">Subtotal</span>
+        <span id="cart-subtotal">R$ 0.00</span>
+      </div>
+      <div class="flex justify-between mb-sm" style="font-size: var(--font-size-sm);">
+        <span style="color: var(--color-text-muted);">Taxa de Serviço/Frete</span>
+        <span id="cart-delivery">R$ 0.00</span>
+      </div>
+      <div class="flex justify-between mb-sm" style="font-size: var(--font-size-sm);">
+        <span style="color: var(--color-text-muted);">Desconto Raízes Fidelidade</span>
+        <span id="cart-discount" style="color: var(--color-success);">R$ 0.00</span>
+      </div>
+      <div class="flex justify-between mb-md" style="font-size: var(--font-size-lg); font-weight: 800;">
+        <span>Total</span>
+        <span id="cart-total">R$ 0.00</span>
+      </div>
+      <button class="btn btn-primary w-full" onclick="startCheckout()">Finalizar Pedido</button>
+    </div>
+  </div>
+
+  <!-- Customization Modifiers Modal (Add Item) -->
+  <div id="modifiers-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-product-title">Tapioca Rendada</h3>
+        <button class="modal-close" onclick="closeModifiersModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-product-desc" style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-md);">
+          Ingredientes padrão da tapioca.
+        </p>
+        <div id="modifiers-options-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="closeModifiersModal()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="modal-total-price" onclick="addActiveProductToCart()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Gateway Selector Modal -->
+  <div id="checkout-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Pagamento Desacoplado</h3>
+        <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: var(--font-size-sm); margin-bottom: var(--space-md);">
+          Como o sistema do **Raízes do Nordeste** não processa cartões diretamente por segurança, escolha como quer pagar na janela externa:
+        </p>
+        <div style="background-color: var(--color-bg-grey); padding: var(--space-sm); border-radius: var(--radius-md); margin-bottom: var(--space-lg); text-align: center;">
+          <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Total a ser cobrado pelo Gateway:</span>
+          <div style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary);" id="checkout-total-val">R$ 0.00</div>
+        </div>
+
+        <h4 style="font-size: var(--font-size-sm); margin-bottom: var(--space-sm); font-family: var(--font-display);">Simular Transação no Gateway:</h4>
+        
+        <div class="flex flex-col gap-sm">
+          <div class="flex gap-sm">
+            <button class="btn btn-primary w-full" onclick="simulatePayment('pix', true)">✓ Simular PIX Aprovado</button>
+            <button class="btn btn-danger w-full" onclick="simulatePayment('pix', false)">✗ Simular PIX Recusado</button>
+          </div>
+          <div class="flex gap-sm">
+            <button class="btn btn-secondary w-full" onclick="simulatePayment('cartao', true)">✓ Simular Cartão Aprovado</button>
+            <button class="btn btn-outline w-full" onclick="simulatePayment('cartao', false)">✗ Simular Cartão Recusado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Status / Tracking Timeline Modal -->
+  <div id="order-status-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Status do Pedido</h3>
+        <button class="modal-close" onclick="closeOrderStatusModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Timeline Steps -->
+        <div class="status-timeline">
+          <div class="status-step active">
+            <div class="status-bubble">1</div>
+            <div class="status-label">Criado</div>
+          </div>
+          <div class="status-step">
+            <div class="status-bubble">2</div>
+            <div class="status-label">Confirmado</div>
+          </div>
+          <div class="status-step">
+            <div class="status-bubble">3</div>
+            <div class="status-label">Preparo</div>
+          </div>
+          <div class="status-step">
+            <div class="status-bubble">4</div>
+            <div class="status-label">Pronto</div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-lg); margin-top: var(--space-lg); text-align: center;">
+          <h3 id="status-step-title" style="font-family: var(--font-display); font-size: var(--font-size-lg); margin-bottom: var(--space-xs);">
+            Criando Pedido...
+          </h3>
+          <p id="status-step-desc" style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+            Enviando informações de pagamento...
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Authentication (Login / Register) Modal -->
+  <div id="auth-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">Entrar ou Cadastrar</h3>
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Auth Tabs Toggle -->
+        <div class="service-toggle mb-md" style="display: flex; width: 100%; padding: 4px;">
+          <button id="auth-tab-login" class="service-toggle-btn active" style="flex: 1;" onclick="toggleAuthTab('login')">Entrar</button>
+          <button id="auth-tab-register" class="service-toggle-btn" style="flex: 1;" onclick="toggleAuthTab('register')">Cadastrar</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="auth-form-login" style="display: block;">
+          <div class="input-group">
+            <label class="input-label">E-mail</label>
+            <input type="email" id="login-email" class="input-field" placeholder="seu-email@provedor.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Senha</label>
+            <input type="password" id="login-password" class="input-field" placeholder="••••••••">
+          </div>
+          <button class="btn btn-primary w-full mt-md" onclick="handleLogin()">Entrar</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="auth-form-register" style="display: none;">
+          <div class="input-group">
+            <label class="input-label">Nome Completo</label>
+            <input type="text" id="reg-name" class="input-field" placeholder="Dona Francisca">
+          </div>
+          <div class="input-group">
+            <label class="input-label">E-mail</label>
+            <input type="email" id="reg-email" class="input-field" placeholder="nome@provedor.com">
+          </div>
+          <div class="flex gap-sm w-full">
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label class="input-label">WhatsApp</label>
+              <input type="tel" id="reg-phone" class="input-field" placeholder="(81) 99999-9999" oninput="formatPhone(this)">
+            </div>
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label class="input-label">CPF</label>
+              <input type="text" id="reg-cpf" class="input-field" placeholder="000.000.000-00" maxlength="14" oninput="formatCPF(this)">
+            </div>
+          </div>
+          <div class="input-group mt-md">
+            <label class="input-label">Senha</label>
+            <input type="password" id="reg-password" class="input-field" placeholder="Mínimo 6 caracteres">
+          </div>
+          <div class="input-group" style="margin-bottom: var(--space-sm);">
+            <label class="switch-group" style="padding: 0; border-bottom: none; align-items: flex-start;">
+              <span style="font-size: 10px; color: var(--color-text-muted); max-width: 80%; text-align: left; line-height: 1.3;">
+                Autorizo a coleta e tratamento dos dados para adesão ao programa **Raízes Fidelidade** (Desconto de 15% automático) em total conformidade com a LGPD.
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="reg-lgpd-consent">
+                <span class="slider"></span>
+              </label>
+            </label>
+          </div>
+          <button class="btn btn-primary w-full mt-sm" id="reg-submit-btn" onclick="handleRegister()" disabled>Concluir Cadastro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Scripts customizados inline
+  </script>
+</body>
+</html>
